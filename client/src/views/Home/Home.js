@@ -1,27 +1,33 @@
-import React, { useState } from 'react';
-import Navbar from './../../components/Navbar/Navbar';
-import Footer from './../../components/Footer/Footer';
-import Slider from './../../components/Slider/Slider';
-import TopSearched from './../../components/TopSearched/TopSearched';
+import Navbar from '../../components/Navbar/Navbar.js';
+import HeroWithImageBackground from '../../components/HeroWithImageBackground/HeroWithImageBackground.js';
+import HomeCardSection from '../../components/HomeCardSection/HomeCardSection.js';
+import CountDiseaseSection from '../../components/CountDiseaseSection/CountDiseaseSection.js';
+import SliderSection from '../../components/SliderSection/SliderSection.js';
+import Footer from '../../components/Footer/Footer.js';
 
-function Home() {
-  const [selectedVitamin, setSelectedVitamin] = useState(null);
 
+const Home = () => {
   return (
-    <div>
-      <h>THis is the home page </h>
+    <div className="w-full overflow-hidden bg-pink-50">
+      {/* Navigation Bar */}
       <Navbar />
-      <Slider onVitaminSelect={setSelectedVitamin} />
-      {selectedVitamin && (
-        <div className="vitamin-info">
-          <h2>{selectedVitamin.name}</h2>
-          <p>{selectedVitamin.description}</p>
-        </div>
-      )}
-      <TopSearched />
+
+      {/* Hero Section */}
+      <HeroWithImageBackground />
+
+      {/* Informative Cards */}
+      <HomeCardSection />
+
+      {/* Count Statistics Section (already styled well) */}
+      <CountDiseaseSection />
+
+      {/* Testimonial/Slider Section */}
+      <SliderSection />
+
+      {/* Footer */}
       <Footer />
     </div>
   );
-}
+};
 
 export default Home;

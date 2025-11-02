@@ -2,15 +2,15 @@ import React from 'react'
 import { useState } from "react";
 import "./Checker.css"
 import Navbar from './../../components/Navbar/Navbar';
-import axios from 'axios';
 import Input from "../../components/Cinput/Input";
 import Footer from "../../components/Footer/Footer";
 
-import Toaster,{toast} from 'react-hot-toast';
+import Toaster from 'react-hot-toast';
 
 function Checker() {
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [predictionResult, setPredictionResult] = useState("");  // Added state for prediction result
   
     const handleFileChange = (e) => {
       const file = e.target.files[0];
@@ -24,41 +24,26 @@ function Checker() {
       }
     };
   
-    const handleUpload = () => {
-      if (!image) {
-        alert("Please select an image first.");
-        return;
-      }
-  
-      const formData = new FormData();
-      formData.append("image", image);
-  
-      fetch("http://localhost:5000/vgg16", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.error) {
-            alert("Error: " + data.error);
-          } else if (data.predictions) {
-            // Format predictions for display
-            const preds = data.predictions.map(p => {
-              if (p.label && p.probability) {
-                return `${p.label} (${(p.probability * 100).toFixed(2)}%)`;
-              } else if (p.class !== undefined) {
-                return `Class ${p.class} (Confidence: ${(p.confidence * 100).toFixed(2)}%)`;
-              } else {
-                return JSON.stringify(p);
-              }
-            }).join(", ");
-            setPredictionResult(preds);
-          } else {
-            alert("Unexpected response from server");
-          }
+      const handleUpload = () => {
+        if (!image) {
+          alert("Please select an image first.");
+          return;
+        }
+    
+        const formData = new FormData();
+        formData.append("image", image);
+    
+        fetch("/vgg16", {
+          method: "POST",
+          body: formData,
         })
-        .catch((err) => console.error(err));
-    };
+          .then((res) => res.text())
+          .then((text) => {
+            console.log("Response text:", text);  // Added for debugging
+            setPredictionResult(text);
+          })
+          .catch((err) => console.error(err));
+      };
     const [Name,SetName] = useState("");
     const [age,Setage] = useState("");
     const [Gender,SetGender] = useState("");
@@ -167,8 +152,14 @@ function Checker() {
         )}
         <br/>
   
-        <button className="btn-upload" onClick={handleUpload}>Upload</button>
-      </div>
+          <button className="btn-upload" onClick={handleUpload}>Upload</button>
+          {predictionResult && (
+            <div className="prediction-result">
+              <h4>Prediction Result:</h4>
+              <pre style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>{predictionResult}</pre>
+            </div>
+          )}
+        </div>
       
       </div>
       <Toaster/>
