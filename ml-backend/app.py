@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
-from utils import process_image, predict_with_vgg16, load_trained_model, predict_image  # Import functions from utils.py
+from utils import load_trained_model, predict_image  # Import functions from utils.py
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -8,18 +9,20 @@ CORS(app)
 model = None
 class_indices = None
 
-@app.before_first_request
-def load_model():
-    global model, class_indices
-    model_path = 'model/vgg16_finetuned.h5'
-    model = load_trained_model(model_path)
-    # Assuming class indices are known or saved, here hardcoded for example
-    class_indices = {
-        'onycholysis': 0,
-        'psoriasis': 1,
-        'skin_infection': 2,
-        'stunted_growth': 3
-    }
+# Model loading is commented out since the model file is missing
+# def load_model():
+#     global model, class_indices
+#     model_path = 'model/vgg16_finetuned.h5'
+#     model = load_trained_model(model_path)
+#     # Assuming class indices are known or saved, here hardcoded for example
+#     class_indices = {
+#         'onycholysis': 0,
+#         'psoriasis': 1,
+#         'skin_infection': 2,
+#         'stunted_growth': 3
+#     }
+
+# load_model()
 
 @app.route('/')
 def index():
@@ -56,9 +59,7 @@ def predict():
         os.makedirs('uploads', exist_ok=True)
         file.save(img_path)
         try:
-            predictions = process_image(img_path)
-        except ImportError as e:
-            return jsonify({'error': str(e) + ' Please install or clone yolov5 repository properly.'}), 500
+            predictions = predict_image(model, img_path, class_indices=class_indices)
         except Exception as e:
             return jsonify({'error': 'Processing error: ' + str(e)}), 500
         return jsonify({'predictions': predictions})
@@ -114,6 +115,72 @@ def vgg16():
     else:
         print("Invalid file type")
         return "Invalid file type", 400
+
+# @app.route('/progress-tracker', methods=['POST'])
+# def progress_tracker():
+#     if 'past_image' not in request.files or 'new_image' not in request.files:
+#         return jsonify({'error': 'Both past and new images are required'}), 400
+
+#     past_file = request.files['past_image']
+#     new_file = request.files['new_image']
+#     disease = request.form.get('disease', 'Skin Lesion (Generic/Acne)')
+
+#     if past_file.filename == '' or new_file.filename == '':
+#         return jsonify({'error': 'No selected files'}), 400
+
+#     if past_file and allowed_file(past_file.filename) and new_file and allowed_file(new_file.filename):
+#         past_filename = secure_filename(past_file.filename)
+#         new_filename = secure_filename(new_file.filename)
+
+#         past_path = os.path.join('uploads', past_filename)
+#         new_path = os.path.join('uploads', new_filename)
+
+#         os.makedirs('uploads', exist_ok=True)
+#         past_file.save(past_path)
+#         new_file.save(new_path)
+
+#         try:
+#             # Load images
+#             import cv2
+#             img_past = cv2.imread(past_path)
+#             img_new = cv2.imread(new_path)
+
+#             # Segment lesions
+#             mask_past, count_past = segment_lesion(img_past, disease)
+#             mask_new, count_new = segment_lesion(img_new, disease)
+
+#             # Calculate areas
+#             area_past = calculate_lesion_area(mask_past)
+#             area_new = calculate_lesion_area(mask_new)
+
+#             # Calculate progress
+#             if area_past > 0:
+#                 percent_change = ((area_new - area_past) / area_past) * 100
+#             else:
+#                 percent_change = 0
+
+#             # Determine status
+#             if percent_change < -0.5:
+#                 status = "IMPROVEMENT (Decreased)"
+#             elif percent_change > 0.5:
+#                 status = "REGRESSION (Increased)"
+#             else:
+#                 status = "NO CHANGE"
+
+#             result = {
+#                 'disease': disease,
+#                 'past_area': area_past,
+#                 'new_area': area_new,
+#                 'percent_change': percent_change,
+#                 'status': status
+#             }
+
+#             return jsonify(result), 200
+
+#         except Exception as e:
+#             return jsonify({'error': 'Processing error: ' + str(e)}), 500
+#     else:
+#         return jsonify({'error': 'Invalid file types'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -10,9 +10,9 @@ import Contact from "./models/ContactUs.js";
 import Reservation from "./models/Reservation.js";
 import Admin from "./models/Admin.js";
 
-dotenv.config();
+dotenv.config({path:'./server/.env'});
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors());
@@ -188,7 +188,7 @@ app.post("/signup", async (req, res) => {
       });
     }
 
-    const bcrypt = await import("bcrypt");
+    const bcrypt = await import("bcryptjs");
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 

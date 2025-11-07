@@ -14,6 +14,7 @@ function Navbar() {
           <a href="/">Home</a>
           <a href="/vitamins">Vitamins</a>
           <a href="/symptoms">Symptom Checker</a>
+          <a href="/progress-tracker">Progress Tracker</a>
           <a href="/about">About</a>
           <a href="/contact">Contact</a>
         </div>

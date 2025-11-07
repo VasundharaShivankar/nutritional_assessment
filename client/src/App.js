@@ -12,6 +12,7 @@ import Admin from "./views/Admin/Admin";
 import Chatbot from "./views/Chatbot/Chatbot"
 import Signup from "./views/Signup/Signup";
 import Checker from "./views/Checker/Checker";
+import ProgressTracker from "./views/ProgressTracker/ProgressTracker";
 // import AdminLogin from "./views/Admin/AdminLogin"
 
 function App() {
@@ -62,7 +63,11 @@ function App() {
       path: "/symptoms",
       element: <Checker/>
     },
-   
+    {
+      path: "/progress-tracker",
+      element: <ProgressTracker/>
+    },
+
   ])
 
   return (
